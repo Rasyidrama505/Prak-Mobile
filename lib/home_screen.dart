@@ -89,7 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 'YARD Sale',
                 style: TextStyle(color: Colors.white),
               ),
-              centerTitle: true,
               actions: [
                 // Dropdown untuk memilih mata uang
                 DropdownButton<String>(
@@ -294,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             child: Image.asset(
               product.imagePath,
-              height: 300,
+              height: 100,
               width: double.infinity,
               fit: BoxFit.cover,
             ),
@@ -376,7 +375,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 product.images.isNotEmpty
                     ? product.images[0]
                     : 'https://via.placeholder.com/150',
-                height: 300,
+                height: 100,
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
