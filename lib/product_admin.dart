@@ -38,30 +38,44 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _deleteProductFromHive(int index) async {
-  final productsBox = Hive.box<ProductModel>('products');
-  
-  // Ambil key produk berdasarkan index
-  final productKey = productsBox.keyAt(index);
+  final box = Hive.box<ProductModel>('products');
+  if (index < box.length) {
+    await box.deleteAt(index);
 
-  if (productKey != null) {
-    // Hapus produk dari Hive berdasarkan key
-    await productsBox.delete(productKey);
-
-    // Perbarui state setelah produk dihapus
     setState(() {
-      // Data dihapus, sehingga rebuild list
+      _localProductsFuture = Future.value(box.values.toList());
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Produk berhasil dihapus!')),
+    );
+
+    print('Product deleted successfully');
   } else {
-    print('Key not found for the product');
+    print('Index out of range: $index');
   }
 }
 
-
   Future<void> _deleteProductFromApi(int productId) async {
+  try {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    await apiService.deleteProduct(productId); // Anda perlu menambahkan fungsi ini di ApiService
-    _loadProducts(); // Refresh data setelah penghapusan
+    await apiService.deleteProduct(productId); // Fungsi ini harus sudah diimplementasikan di ApiService
+    
+    // Refresh data setelah penghapusan
+    _loadProducts();
+
+    // Tampilkan notifikasi berhasil
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Produk berhasil dihapus dari server!')),
+    );
+  } catch (error) {
+    // Tampilkan notifikasi error jika ada masalah
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Gagal menghapus produk: $error')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +158,7 @@ class _ProductPageState extends State<ProductPage> {
                   itemBuilder: (context, index) {
                     if (index >= apiProducts.length) {
                       return _buildProductCardHive(
-                          hiveProducts[index - apiProducts.length], index);
+                          hiveProducts[index - apiProducts.length], index - apiProducts.length);
                     } else {
                       return _buildProductCardApi(apiProducts[index]);
                     }
